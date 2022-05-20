@@ -18,7 +18,7 @@ It is not a job/task scheduler such as "cron", it is not supposed to be used for
 
 ## Demo
 
-Look at this [example](/example.html) for a concrete usage
+Look at this [example](https://htmlpreview.github.io/?/example.html) for a concrete usage
 
 ## Installation
 
