@@ -54,6 +54,10 @@
             import EventsPlayer from './index.js';
 
             const slider = document.getElementById('slider');
+            const startButton = document.getElementById('start');
+            const pauseButton = document.getElementById('pause');
+            const stopButton = document.getElementById('stop');
+            const consoleArea = document.getElementById('console');
 
             let intervalId;
             let startTime;
@@ -61,7 +65,7 @@
             let pauseStartTime = 0;
 
             function log(...args) {
-                document.getElementById('console').innerText += args.join(' ') + '\n';
+                consoleArea.innerText += args.join(' ') + '\n';
             }
 
             function progress() {
@@ -102,25 +106,24 @@
                 }
             });
 
-            document.getElementById('start').onclick = function() {
+            startButton.onclick = function() {
                 slider.value = 0;
-                document.getElementById('pause').innerText = 'Pause';
+                pauseButton.innerText = 'Pause';
                 player.start();
             };
-            document.getElementById('pause').onclick = function(evt) {
-                const button = evt.target;
-                if (button.innerText === 'Pause') {
+            pauseButton.onclick = function() {
+                if (pauseButton.innerText === 'Pause') {
                     player.pause();
-                    button.innerText = 'Resume';
+                    pauseButton.innerText = 'Resume';
                 } else {
                     player.resume();
-                    button.innerText = 'Pause';
+                    pauseButton.innerText = 'Pause';
                 }
             };
-            document.getElementById('stop').onclick = function() {
+            stopButton.onclick = function() {
                 slider.value = 0;
                 pauseDuration = 0;
-                document.getElementById('pause').innerText = 'Pause';
+                pauseButton.innerText = 'Pause';
                 player.stop();
             };
 
