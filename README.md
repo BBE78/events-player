@@ -34,15 +34,15 @@ The following example...
 
 ```javascript
 const player = new EventsPlayer([
-	{ delay: 6000, data: 42 },
-	{ delay: 1234, data: 'hello' },							// could be unordered
-	{ delay: 7000, data: { id: 1, message: 'world' } },		// could be your own data
-	{ delay: 7600, data: true }
+    { delay: 6000, data: 42 },
+    { delay: 1234, data: 'hello' },                      // could be unordered
+    { delay: 7000, data: { id: 1, message: 'world' } },  // could be your own data
+    { delay: 7600, data: true }
 ], (data) => {
-	console.info('data:', data);
+    console.info('data:', data);
 });
 player.on('state', (newState, previousState) => {
-	console.info('state:', previousState, '-->', newState);
+    console.info('state:', previousState, '-->', newState);
 });
 player.start();
 ...
