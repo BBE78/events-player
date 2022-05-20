@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>EventsPlayer sample</title>
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+            }
+            #main {
+                width: 600px;
+                margin: 40px;
+            }
+            .slider {
+                width: 100%;
+            }
+            .buttons-container {
+                text-align: center;
+            }
+            button {
+                width: 70px;
+                height: 28px;
+            }
+            .console-container {
+                width: 100%;
+                height: 300px;
+                background-color: beige;
+                border-radius: 4px;
+                margin-top: 6px;
+            }
+            #console {
+                width: 100%;
+                height: 100%;
+                padding: 6px;
+                overflow: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="main">
+            <div class="slider-container">
+                <input id="slider" class="slider" type="range" min="0" max="7600" value="0">
+            </div>
+            <div class="buttons-container">
+                <button id="start">Start</button>
+                <button id="pause">Pause</button>
+                <button id="stop">Stop</button>
+            </div>
+            <div class="console-container">
+                <pre id="console"></pre>
+            </div>
+        </div>
+        <script type="module">
+            import EventsPlayer from './index.js';
+
+            const slider = document.getElementById('slider');
+
+            let intervalId;
+            let startTime;
+            let pauseDuration = 0;
+            let pauseStartTime = 0;
+
+            function log(...args) {
+                document.getElementById('console').innerText += args.join(' ') + '\n';
+            }
+
+            function progress() {
+                intervalId = setInterval(() => {
+                    const duration = Date.now() - pauseDuration - startTime;
+                    slider.value = duration;
+                }, 100);
+            }
+
+            const player = new EventsPlayer([
+                { delay: 6000, data: 42 },
+	            { delay: 1234, data: 'hello' },
+	            { delay: 7000, data: { id: 1, message: 'world' } },
+	            { delay: 7600, data: true }
+            ], (data) => {
+                log('event:', data);
+            });
+            player.on('state', (newState, previousState) => {
+	            log('state:', previousState, '-->', newState);
+                switch (newState) {
+                    case 'started':
+                        startTime = Date.now();
+                        pauseDuration = 0;
+                        progress();
+                        break;
+                    case 'paused':
+                        pauseStartTime = Date.now();
+                        clearInterval(intervalId);
+                    case 'stopped':
+                        clearInterval(intervalId);
+                        break;
+                    case 'resumed':
+                        pauseDuration += Date.now() - pauseStartTime;
+                        progress();
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            document.getElementById('start').onclick = function() {
+                slider.value = 0;
+                document.getElementById('pause').innerText = 'Pause';
+                player.start();
+            };
+            document.getElementById('pause').onclick = function(evt) {
+                const button = evt.target;
+                if (button.innerText === 'Pause') {
+                    player.pause();
+                    button.innerText = 'Resume';
+                } else {
+                    player.resume();
+                    button.innerText = 'Pause';
+                }
+            };
+            document.getElementById('stop').onclick = function() {
+                slider.value = 0;
+                pauseDuration = 0;
+                document.getElementById('pause').innerText = 'Pause';
+                player.stop();
+            };
+
+        </script>
+    </body>
+</html>

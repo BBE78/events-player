@@ -1,0 +1,88 @@
+{
+    "name": "events-player",
+    "version": "0.1.0",
+    "description": "A JavaScript events player",
+    "main": "index.js",
+    "type": "module",
+    "repository": "https://github.com/BBE78/events-player.git",
+    "author": "Benoît <benoit@berthonneau.com>",
+    "license": "MIT",
+    "keywords": [
+        "cron",
+        "events",
+        "job",
+        "player",
+        "scheduler",
+        "task"
+    ],
+    "scripts": {
+        "test": "jest",
+        "test:c": "yarn test --coverage=true",
+        "lint": "eslint --format json --output-file dist/reports/eslint-report.json src/** test/specs/**",
+        "lint-md": "remark *.md example/*.md .github/**/*.md",
+        "sonar": "sonar-scanner -Dsonar.sourceEncoding=utf-8 -Dsonar.sources=src -Dsonar.tests=test -Dsonar.javascript.lcov.reportPaths=dist/reports/coverage/lcov.info -Dsonar.eslint.reportPaths=dist/reports/eslint-report.json"
+    },
+    "devDependencies": {
+        "@babel/preset-env": "^7.18.0",
+        "babel-jest": "^28.1.0",
+        "eslint": "^8.15.0",
+        "eslint-plugin-jest": "^26.2.2",
+        "jest": "^28.1.0",
+        "jest-extended": "^2.0.0",
+        "jest-html-reporters": "^3.0.6",
+        "serve": "^13.0.2"
+    },
+    "jest": {
+        "collectCoverageFrom": [
+            "index.js",
+            "src/**/*.js"
+        ],
+        "coverageDirectory": "dist/reports/coverage",
+        "coverageReporters": [
+            "lcovonly",
+            "html"
+        ],
+        "setupFilesAfterEnv": [
+            "jest-extended/all"
+        ],
+        "testMatch": [
+            "**/test/**/?(*.)+(spec|test).[jt]s?(x)"
+        ],
+        "transform": {
+            "^.+\\.(js|jsx|ts|tsx|mjs)$": "babel-jest"
+        },
+        "reporters": [
+            "default",
+            [
+                "jest-html-reporters",
+                {
+                    "publicPath": "dist/reports/jest",
+                    "filename": "jest-report.html"
+                }
+            ]
+        ]
+    },
+    "eslintConfig": {
+        "extends": [
+            "eslint:recommended",
+            "plugin:cypress/recommended",
+            "plugin:jest/recommended"
+        ],
+        "plugins": [
+            "cypress",
+            "jest"
+        ],
+        "env": {
+            "es2021": true,
+            "cypress/globals": true,
+            "jest/globals": true,
+            "node": true
+        },
+        "rules": {
+            "quotes": [
+                "error",
+                "single"
+            ]
+        }
+    }
+}
