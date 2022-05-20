@@ -65,16 +65,13 @@
     "eslintConfig": {
         "extends": [
             "eslint:recommended",
-            "plugin:cypress/recommended",
             "plugin:jest/recommended"
         ],
         "plugins": [
-            "cypress",
             "jest"
         ],
         "env": {
             "es2021": true,
-            "cypress/globals": true,
             "jest/globals": true,
             "node": true
         },
