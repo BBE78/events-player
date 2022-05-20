@@ -33,3 +33,7 @@ jobs:
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN  }}
         coverage-reports: ./dist/reports/coverage/lcov.info
+
+    - name: ESLint Checks
+      continue-on-error: true
+      run: yarn lint
