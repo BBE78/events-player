@@ -6,12 +6,13 @@
             html, body {
                 margin: 0;
                 padding: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
             #main {
                 width: 600px;
                 margin: 40px;
             }
-            .slider {
+            #slider {
                 width: 100%;
             }
             .buttons-container {
@@ -21,11 +22,12 @@
                 width: 70px;
                 height: 28px;
             }
+            #speed {
+                width: 300px;
+            }
             .console-container {
                 width: 100%;
                 height: 300px;
-                background-color: beige;
-                border-radius: 4px;
                 margin-top: 6px;
             }
             #console {
@@ -33,18 +35,38 @@
                 height: 100%;
                 padding: 6px;
                 overflow: auto;
+                background-color: beige;
+                border-radius: 4px;
+                border: thin solid burlywood;
             }
         </style>
     </head>
     <body>
         <div id="main">
             <div class="slider-container">
-                <input id="slider" class="slider" type="range" min="0" max="7600" value="0">
+                <input id="slider" type="range" list="slider-ticks" min="0" max="7600" value="0">
+                <datalist id="slider-ticks">
+                    <option value="1234" label="'hello'">'hello'</option>
+                    <option value="6000" label="42">42</option>
+                    <option value="7000" label="{ id: 1, message: 'world' }">{ id: 1, message: 'world' }</option>
+                    <option value="7600" label="true">true</option>
+                </datalist>
             </div>
             <div class="buttons-container">
-                <button id="start">Start</button>
-                <button id="pause">Pause</button>
-                <button id="stop">Stop</button>
+                <div>
+                    <button id="start">Start</button>
+                    <button id="pause">Pause</button>
+                    <button id="stop">Stop</button>
+                </div>
+                <div>
+                    <label for="speed">Speed</label>
+                    <input id="speed" type="range" list="speed-ticks" min="0.2" max="5" value="1" step="0.2">
+                    <datalist id="speed-ticks">
+                        <option value="0.2" label="x5 slower">x5 slower</option>
+                        <option value="1" label="normal">normal</option>
+                        <option value="5" label="x5 quicker">x5 quicker</option>
+                    </datalist>
+                </div>
             </div>
             <div class="console-container">
                 <pre id="console"></pre>
@@ -57,6 +79,7 @@
             const startButton = document.getElementById('start');
             const pauseButton = document.getElementById('pause');
             const stopButton = document.getElementById('stop');
+            const speed = document.getElementById('speed');
             const consoleArea = document.getElementById('console');
 
             let intervalId;
@@ -71,7 +94,7 @@
             function progress() {
                 intervalId = setInterval(() => {
                     const duration = Date.now() - pauseDuration - startTime;
-                    slider.value = duration;
+                    slider.value = duration * parseFloat(speed.value);
                 }, 100);
             }
 
@@ -109,7 +132,7 @@
             startButton.onclick = function() {
                 slider.value = 0;
                 pauseButton.innerText = 'Pause';
-                player.start();
+                player.start(parseFloat(speed.value));
             };
             pauseButton.onclick = function() {
                 if (pauseButton.innerText === 'Pause') {

@@ -43,6 +43,25 @@ const checkCallback = (callback) => {
 
 
 /**
+ * Check speed instance and throws Error if incorrect
+ *
+ * @param {number} speed the speed to check
+ * @returns the speed
+ */
+const checkSpeed = (speed) => {
+    if (speed === undefined) {
+        throw new Error('seriously? undefined "speed" parameter?...');
+    } else if (typeof speed !== 'number') {
+        throw new Error('"speed" parameter is not a number');
+    } else if (speed <= 0) {
+        throw new Error('"speed" parameter could not be lower than 0, OK Marthy?');
+    } else {
+        return speed;
+    }
+};
+
+
+/**
  * Empty function implementation
  */
 const emptyFunction = () => {
@@ -55,11 +74,13 @@ const emptyFunction = () => {
  *
  * @param {string} timerId a unique identifier
  * @param {object} event the player event
+ * @param {number} speed the player speed
  * @param {function} callback the callback to invoke when timer expire
  * @returns the create Timer
  */
-const createTimer = (timerId, event, callback) => {
-    return new Timer(timerId, event.delay, event.data, callback);
+const createTimer = (timerId, event, speed, callback) => {
+    const effectiveDelay = Math.ceil(event.delay / speed);
+    return new Timer(timerId, effectiveDelay, event.data, callback);
 };
 
 
@@ -68,29 +89,41 @@ const createTimer = (timerId, event, callback) => {
  */
 export default class EventsPlayer {
 
+    /** The list of events to play */
+    #events;
+
+    /** The map containing the remaining events (ie not yet done) */
+    #remainingEvents;
+
+    /** The map containing the remaining active timers */
+    #remainingTimers;
+
     /** The callback function to call on each played event */
     #callback;
 
     /** The player internal events listeners */
     #listeners;
 
-    /** The map containing the remaining active timers */
-    #remainingTimers;
-
     /** the internal state of the player */
-    #state
+    #state;
+
+    /** The player speed. */
+    #speed;
 
     /**
      * Constructor.
      *
      * @param {object[]} events the list of events to play
      * @param {function} callback function called on each played event
+     * @param {number} speed the player speed (default to 1)
      */
-    constructor(events, callback) {
-        this.events = checkEvents(events);
+    constructor(events, callback, speed = 1) {
+        this.#events = checkEvents(events);
         this.#callback = checkCallback(callback);
+        this.#speed = checkSpeed(speed);
         this.#listeners = {
             'state': emptyFunction,
+            'speed': emptyFunction,
             'started': emptyFunction,
             'paused': emptyFunction,
             'resumed': emptyFunction,
@@ -99,6 +132,37 @@ export default class EventsPlayer {
         };
         this.#state = 'initialised';
         this.#remainingTimers = new Map();
+        this.#remainingEvents = new Map();
+    }
+
+    /**
+     * Returns the player speed.
+     *
+     * @returns the current speed.
+     */
+    get speed() {
+        return this.#speed;
+    }
+
+    /**
+     * Change the player speed, quicker for value greater than 1, slower if lower than 1.
+     *
+     * @param {number} speed the player speed
+     */
+    set speed(speed) {
+        const previousSpeed = this.#speed;
+        this.#speed = checkSpeed(speed);
+
+        if (this.#speed !== previousSpeed) {
+            if ((this.#state === 'started') || (this.#state === 'resumed')) {
+                this.#internalStop(false);
+                this.#remainingEvents.forEach((event, id) => {
+                    this.#scheduleEvent(id, event);
+                });
+            }
+
+            this.#listeners.speed(this.#speed, previousSpeed);
+        }
     }
 
     /**
@@ -139,35 +203,54 @@ export default class EventsPlayer {
     }
 
     /**
-     * Starts the player, schedule all events
+     * Schedule the specified event, start and memorize a Timer.
+     *
+     * @param {string} id the event unique identifier
+     * @param {object} event the event to schedule
      */
-    start() {
+    #scheduleEvent(id, event) {
+        // Create a timer callback, and delegate the call to this player callback
+        const timerCallback = (t) => {
+            // Timer is done, remove from the list of active timers
+            this.#remainingTimers.delete(t.id);
+            this.#remainingEvents.delete(t.id);
+            // Call the player callback
+            this.#callback(t.data);
+            // If last event, notify that player is done!
+            if (this.#remainingTimers.size === 0) {
+                this.#stateChanged('done');
+            }
+        };
+
+        // Create and start a timer for this event
+        const timer = createTimer(id, event, this.#speed, timerCallback);
+        timer.start();
+
+        // Store the timer in the list of remaining active timers
+        this.#remainingTimers.set(id, timer);
+    }
+
+    /**
+     * Starts the player, schedule all events
+     *
+     * @param {number} speed the player speed (default to 1)
+     */
+    start(speed = 1) {
         // Cancel all previous timers (several play() called)
         this.#internalStop(false);
-        this.#remainingTimers = new Map();
+        this.#remainingEvents.clear();
+        this.#remainingTimers.clear();
+
+        // Take into account the speed
+        this.#speed = speed;
 
         // Browse all events and start a timer
-        for (let i = 0; i < this.events.length; i++) {
-            // Create a timer callback, and delegate the call to this player callback
-            const timerCallback = (t) => {
-                // Timer is done, remove from the list of active timers
-                this.#remainingTimers.delete(t.id);
-                // Call the player callback
-                this.#callback(t.data);
-                // If last event, notify that player is done!
-                if (this.#remainingTimers.size === 0) {
-                    this.#stateChanged('done');
-                }
-            };
-
+        this.#events.forEach((event, index) => {
             // Create and start a timer for this event
-            const timerId = `${Date.now()}-${i}`;
-            const timer = createTimer(timerId, this.events[i], timerCallback);
-            timer.start();
-
-            // Store the timer is the list of remaining active timers
-            this.#remainingTimers.set(timerId, timer);
-        }
+            const id = `${Date.now()}-${index}`;
+            this.#scheduleEvent(id, event);
+            this.#remainingEvents.set(id, event);
+        });
         this.#stateChanged('started');
     }
 

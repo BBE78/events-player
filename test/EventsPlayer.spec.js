@@ -9,6 +9,12 @@ import EventsPlayer  from '../index';
 /** An empty function. */
 const emptyCallback = () => { /* does nothing */ };
 
+/** Safely stop the player. */
+const stopPlayer = (player) => {
+    if (player) {
+        player.stop();
+    }
+};
 
 describe('Testing EventsPlayer class', () => {
 
@@ -68,6 +74,19 @@ describe('Testing EventsPlayer class', () => {
             expect(() => new EventsPlayer(quickEvents, 'dummy')).toThrow(Error);
         });
 
+        test('with null speed', () => {
+            expect(() => new EventsPlayer(quickEvents, emptyCallback, null)).toThrow(Error);
+        });
+
+        test('with non number speed', () => {
+            expect(() => new EventsPlayer(quickEvents, emptyCallback, 'hello')).toThrow(Error);
+        });
+
+        test('with lower that 0 speed', () => {
+            expect(() => new EventsPlayer(quickEvents, emptyCallback, 0)).toThrow(Error);
+            expect(() => new EventsPlayer(quickEvents, emptyCallback, -1)).toThrow(Error);
+        });
+
     });
 
     describe('start()', () => {
@@ -75,10 +94,7 @@ describe('Testing EventsPlayer class', () => {
         let player;
 
         afterEach(() => {
-            if (player) {
-                player.stop();
-                player = undefined;
-            }
+            stopPlayer(player);
         });
 
         test('nominal', (done) => {
@@ -129,6 +145,37 @@ describe('Testing EventsPlayer class', () => {
 
     });
 
+    describe('speed()', () => {
+
+        let player;
+
+        afterEach(() => {
+            stopPlayer(player);
+        });
+
+        test('nominal', (done) => {
+            player = new EventsPlayer(quickEvents, emptyCallback);
+            player.on('speed', (newValue, oldValue) => {
+                expect(newValue).toBe(2.2);
+                expect(oldValue).toBe(1);
+                done();
+            });
+            player.speed = 2.2;
+        });
+
+        test('while playing', (done) => {
+            player = new EventsPlayer(quickEvents, emptyCallback);
+            player.on('speed', (newValue, oldValue) => {
+                expect(newValue).toBe(2.2);
+                expect(oldValue).toBe(1);
+                done();
+            });
+            player.start();
+            player.speed = 2.2;
+        });
+
+    });
+
     describe('listeners', () => {
 
         const listenersTestTimeout = 1000;
@@ -139,11 +186,12 @@ describe('Testing EventsPlayer class', () => {
         });
 
         afterEach(() => {
-            player.stop();
-            player = undefined;
+            stopPlayer(player);
         });
 
         test('without listener', () => {
+            player.on('state');
+            player.on('speed');
             player.on('started');
             player.on('paused');
             player.on('resumed');
@@ -156,6 +204,13 @@ describe('Testing EventsPlayer class', () => {
                 done();
             });
             player.start();
+        }, listenersTestTimeout);
+
+        test('"speed" event', (done) => {
+            player.on('speed', () => {
+                done();
+            });
+            player.speed = 2;
         }, listenersTestTimeout);
 
         describe('"started" event', () => {
@@ -247,7 +302,7 @@ describe('Testing EventsPlayer class', () => {
 
         const authorizedDeltaInMs = 30;
 
-        test(`testing player accuracy with \u00B1${authorizedDeltaInMs} ms`, (done) => {
+        test(`testing player accuracy with a dela of ${authorizedDeltaInMs} ms`, (done) => {
             const player = new EventsPlayer([
                 { delay: 100, data: '#1'},
                 { delay: 566, data: '#2'},
@@ -256,13 +311,13 @@ describe('Testing EventsPlayer class', () => {
                 const duration = Date.now() - startTime;
                 switch (data) {
                     case '#1':
-                        expect(duration).toBeWithin(100 - authorizedDeltaInMs, 100 + authorizedDeltaInMs);
+                        expect(duration).toBeWithin(100, 100 + authorizedDeltaInMs);
                         break;
                     case '#2':
-                        expect(duration).toBeWithin(556 - authorizedDeltaInMs, 556 + authorizedDeltaInMs);
+                        expect(duration).toBeWithin(556, 556 + authorizedDeltaInMs);
                         break;
                     case '#3':
-                        expect(duration).toBeWithin(3198 - authorizedDeltaInMs, 3198 + authorizedDeltaInMs);
+                        expect(duration).toBeWithin(3198, 3198 + authorizedDeltaInMs);
                         break;
                     default:
                         done(`untested event data: ${data}`);
