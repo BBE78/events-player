@@ -9,27 +9,28 @@ import EventsPlayer  from '../index';
 /** An empty function. */
 const emptyCallback = () => { /* does nothing */ };
 
-/** Safely stop the player. */
-const stopPlayer = (player) => {
-    if (player) {
-        player.stop();
-    }
-};
-
 describe('Testing EventsPlayer class', () => {
 
     const quickEvents = [
         { delay: 100, data: 'data #1'}
     ];
 
+    let player;
+
+    afterEach(() => {
+        if (player) {
+            player.stop();
+        }
+    });
+
     describe('constructor', () => {
         test('nominal', () => {
-            const player = new EventsPlayer(quickEvents, emptyCallback);
+            player = new EventsPlayer(quickEvents, emptyCallback);
             expect(player).toBeDefined();
         });
 
         test('with 2 events already sorted', () => {
-            const player = new EventsPlayer([
+            player = new EventsPlayer([
                 { delay: 2 },
                 { delay: 5 }
             ], emptyCallback);
@@ -37,7 +38,7 @@ describe('Testing EventsPlayer class', () => {
         });
 
         test('with 2 events not sorted', () => {
-            const player = new EventsPlayer([
+            player = new EventsPlayer([
                 { delay: 5 },
                 { delay: 2 }
             ], emptyCallback);
@@ -82,111 +83,208 @@ describe('Testing EventsPlayer class', () => {
             expect(() => new EventsPlayer(quickEvents, emptyCallback, 'hello')).toThrow(Error);
         });
 
-        test('with lower that 0 speed', () => {
+        test('with lower than 0 speed', () => {
             expect(() => new EventsPlayer(quickEvents, emptyCallback, 0)).toThrow(Error);
             expect(() => new EventsPlayer(quickEvents, emptyCallback, -1)).toThrow(Error);
         });
 
     });
 
-    describe('start()', () => {
-
-        let player;
-
-        afterEach(() => {
-            stopPlayer(player);
-        });
-
-        test('nominal', (done) => {
-            player = new EventsPlayer(quickEvents, () => {
-                done();
-            });
-            player.start();
-        });
-
-        test('with "start()" called multiples times', (done) => {
-            let count = 0;
-            player = new EventsPlayer(quickEvents, () => {
-                count++;
-            });
-            player.on('done', () => {
-                if (count === 1) {
-                    done();
-                } else {
-                    done(`events callback should be called only once, but was called ${count} times`);
-                }
-            })
-            player.start();
-            player.start();
-            player.start();
-        });
-
-    });
-
-    describe('pause()', () => {
-
-        let player;
-
-        afterEach(() => {
-            if (player) {
-                player.stop();
-                player = undefined;
-            }
-        });
-
-        test('nominal', (done) => {
-            player = new EventsPlayer(quickEvents, emptyCallback);
-            player.on('paused', () => {
-                done();
-            });
-            player.start();
-            player.pause();
-        });
-
-    });
-
-    describe('speed()', () => {
-
-        let player;
-
-        afterEach(() => {
-            stopPlayer(player);
-        });
-
-        test('nominal', (done) => {
-            player = new EventsPlayer(quickEvents, emptyCallback);
-            player.on('speed', (newValue, oldValue) => {
-                expect(newValue).toBe(2.2);
-                expect(oldValue).toBe(1);
-                done();
-            });
-            player.speed = 2.2;
-        });
-
-        test('while playing', (done) => {
-            player = new EventsPlayer(quickEvents, emptyCallback);
-            player.on('speed', (newValue, oldValue) => {
-                expect(newValue).toBe(2.2);
-                expect(oldValue).toBe(1);
-                done();
-            });
-            player.start();
-            player.speed = 2.2;
-        });
-
-    });
-
-    describe('listeners', () => {
-
-        const listenersTestTimeout = 1000;
-        let player;
+    describe('properties', () => {
 
         beforeEach(() => {
             player = new EventsPlayer(quickEvents, emptyCallback);
         });
 
-        afterEach(() => {
-            stopPlayer(player);
+        describe('speed', () => {
+            test('with undefined', () => {
+                expect(() => (player.speed = undefined)).toThrow(Error);
+            });
+
+            test('with null', () => {
+                expect(() => (player.speed = null)).toThrow(Error);
+            });
+
+            test('with non number', () => {
+                expect(() => (player.speed = 'hello')).toThrow(Error);
+            });
+
+            test('with lower than 0', () => {
+                expect(() => (player.speed = 0)).toThrow(Error);
+                expect(() => (player.speed = -1)).toThrow(Error);
+            });
+
+            test('nominal', (done) => {
+                player.on('speed', (newValue, oldValue) => {
+                    expect(newValue).toBe(2.2);
+                    expect(oldValue).toBe(1);
+                    done();
+                });
+                player.speed = 2.2;
+                expect(player.speed).toBe(2.2);
+            });
+
+            test('while playing', (done) => {
+                player.on('speed', (newValue, oldValue) => {
+                    expect(newValue).toBe(2.2);
+                    expect(oldValue).toBe(1);
+                    done();
+                });
+                player.start();
+                player.speed = 2.2;
+                expect(player.speed).toBe(2.2);
+            });
+        });
+
+    });
+
+    describe('methods', () => {
+
+        describe('start()', () => {
+
+            test('nominal', (done) => {
+                player = new EventsPlayer(quickEvents, () => {
+                    done();
+                });
+                player.start();
+            });
+
+            test('called multiples times', (done) => {
+                let count = 0;
+                player = new EventsPlayer(quickEvents, () => {
+                    count++;
+                });
+                player.on('done', () => {
+                    if (count === 1) {
+                        done();
+                    } else {
+                        done(`events callback should be called only once, but was called ${count} times`);
+                    }
+                })
+                player.start();
+                player.start();
+                player.start();
+            });
+
+        });
+
+        describe('stop()', () => {
+
+            beforeEach(() => {
+                player = new EventsPlayer(quickEvents, emptyCallback);
+            });
+
+            test('nominal', (done) => {
+                player.on('stopped', () => {
+                    done();
+                });
+                player.start();
+                player.stop();
+            });
+
+            test('without "start()"', (done) => {
+                player.on('stopped', () => {
+                    done();
+                });
+                player.stop();
+            });
+
+            test('called multiples times', () => {
+                let count = 0;
+                player.on('stopped', () => {
+                    count++;
+                })
+                player.stop();
+                player.stop();
+                player.stop();
+                expect(count).toBe(1);
+            });
+
+        });
+
+        describe('pause()', () => {
+
+            beforeEach(() => {
+                player = new EventsPlayer(quickEvents, emptyCallback);
+            });
+
+            test('nominal', (done) => {
+                player.on('paused', () => {
+                    done();
+                });
+                player.start();
+                player.pause();
+            });
+
+            test('called multiples times', () => {
+                let count = 0;
+                player.on('paused', () => {
+                    count++;
+                });
+                player.start();
+                player.pause();
+                player.pause();
+                player.pause();
+                expect(count).toBe(1);
+            });
+
+        });
+
+        describe('resume()', () => {
+
+            beforeEach(() => {
+                player = new EventsPlayer(quickEvents, emptyCallback);
+            });
+
+            test('nominal', (done) => {
+                player.on('resumed', () => {
+                    done();
+                });
+                player.start();
+                player.pause();
+                player.resume();
+            });
+
+            test('without "start()"', (done) => {
+                player.on('resumed', () => {
+                    done('"resumed" event should not be sent');
+                });
+                player.resume();
+                done();
+            });
+
+            test('without "pause()"', (done) => {
+                player.on('resumed', () => {
+                    done('"resumed" event should not be sent');
+                });
+                player.start();
+                player.resume();
+                done();
+            });
+
+            test('called multiples times', () => {
+                let count = 0;
+                player.on('resumed', () => {
+                    count++;
+                });
+                player.start();
+                player.pause();
+                player.resume();
+                player.resume();
+                player.resume();
+                expect(count).toBe(1);
+            });
+
+        });
+
+    });
+
+    describe('events', () => {
+
+        const listenersTestTimeout = 1000;
+
+        beforeEach(() => {
+            player = new EventsPlayer(quickEvents, emptyCallback);
         });
 
         test('without listener', () => {
@@ -303,7 +401,7 @@ describe('Testing EventsPlayer class', () => {
         const authorizedDeltaInMs = 30;
 
         test(`testing player accuracy with a dela of ${authorizedDeltaInMs} ms`, (done) => {
-            const player = new EventsPlayer([
+            player = new EventsPlayer([
                 { delay: 100, data: '#1'},
                 { delay: 566, data: '#2'},
                 { delay: 3198, data: '#3'}

@@ -12,6 +12,7 @@
         "events",
         "job",
         "player",
+        "setTimeout",
         "scheduler",
         "task"
     ],
@@ -22,6 +23,7 @@
         "lint-md": "remark *.md .github/**/*.md"
     },
     "devDependencies": {
+        "@babel/core": "^7.18.0",
         "@babel/preset-env": "^7.18.0",
         "babel-jest": "^28.1.0",
         "eslint": "^8.15.0",

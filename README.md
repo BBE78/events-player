@@ -19,7 +19,7 @@ A JavaScript events player, for browsers or Node.js.
 
 ## What is `events-player`?
 
-It is a player of time based events, such as a movie player but with events :)
+It is a player of time based events, such as a movie player :movie_camera: but with your events :smile:
 
 It could be used in a browser, or in a Node.js application.
 
@@ -88,8 +88,38 @@ timeline:  --X---O-------------O---  (5 sec.)  ---------------O-----OX--->
              |   |             |  |            |              |     ||
 callback:    |   'hello'       42 | { id: 1, message: 'world' }     true
              |                    |            |                     |
-listeners:   'started'            'paused'     'resumed'             'done'
+state:       'started'            'paused'     'resumed'             'done'
 </pre>
+
+## API
+
+### Properties
+
+| Name                  | Type      | Description |
+| --------------------- | --------- | ----------- |
+| `speed`               | `number`  | the player speed |
+
+### Events
+
+| Name                  | Type      | Default   | Description |
+| --------------------- | --------- | --------- | ----------- |
+| `state`               | `"initialized"|"started"|"paused"|"resumed"|"done"`  | `"initialized"`                            | on player's state changed |
+| `speed`               | `number`  | `1`       | on speed changed |
+| `started`             | `-`       | `-`       | on player started |
+| `paused`              | `-`       | `-`       | on player paused |
+| `resumed`             | `-`       | `-`       | on player resumed |
+| `stopped`             | `-`       | `-`       | on player stopped |
+| `done`                | `-`       | `-`       | on player done |
+
+### Methods
+
+| Name                  | Arg       | Default   | Description |
+| --------------------- | --------- | --------- | ----------- |
+| `start(speed)`        | `number`  | `1`       | start the player |
+| `pause()`             | `-`       | `-`       | pause the player |
+| `resume()`            | `-`       | `-`       | resume the player |
+| `stop()`              | `-`       | `-`       | stop the player |
+
 
 ## Issues & Enhancements
 
