@@ -398,9 +398,10 @@ describe('Testing EventsPlayer class', () => {
 
     describe('accuracy', () => {
 
-        const authorizedDeltaInMs = 30;
+        const authorizedMinDeltaInMs = 5;
+        const authorizedMaxDeltaInMs = 30;
 
-        test(`testing player accuracy with a dela of ${authorizedDeltaInMs} ms`, (done) => {
+        test(`testing player accuracy with a delta between -${authorizedMinDeltaInMs} and +${authorizedMaxDeltaInMs} ms`, (done) => {
             player = new EventsPlayer([
                 { delay: 100, data: '#1'},
                 { delay: 566, data: '#2'},
@@ -409,13 +410,13 @@ describe('Testing EventsPlayer class', () => {
                 const duration = Date.now() - startTime;
                 switch (data) {
                     case '#1':
-                        expect(duration).toBeWithin(100, 100 + authorizedDeltaInMs);
+                        expect(duration).toBeWithin(100 - authorizedMinDeltaInMs, 100 + authorizedMaxDeltaInMs);
                         break;
                     case '#2':
-                        expect(duration).toBeWithin(556, 556 + authorizedDeltaInMs);
+                        expect(duration).toBeWithin(556 - authorizedMinDeltaInMs, 556 + authorizedMaxDeltaInMs);
                         break;
                     case '#3':
-                        expect(duration).toBeWithin(3198, 3198 + authorizedDeltaInMs);
+                        expect(duration).toBeWithin(3198 - authorizedMinDeltaInMs, 3198 + authorizedMaxDeltaInMs);
                         break;
                     default:
                         done(`untested event data: ${data}`);
