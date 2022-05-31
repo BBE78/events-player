@@ -8,9 +8,10 @@ A JavaScript events player, for browsers or Node.js.
 	<a href="https://www.codacy.com/gh/BBE78/events-player/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BBE78/events-player&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/0ac0bcd2397c492f9e60165260c37e34"/></a>
 	<a href="https://www.codacy.com/gh/BBE78/events-player/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BBE78/events-player&amp;utm_campaign=Badge_Coverage"><img src="https://app.codacy.com/project/badge/Coverage/0ac0bcd2397c492f9e60165260c37e34"/></a>
 	<br/>
-	<a href="https://sonarcloud.io/summary/overall?id=BBE78_events-player"><img src="https://sonarcloud.io/api/project_badges/measure?project=BBE78_events-player&metric=alert_status" alt="sonarcloud"></a>
-	<a href="https://sonarcloud.io/summary/overall?id=BBE78_events-player"><img src="https://sonarcloud.io/api/project_badges/measure?project=BBE78_events-player&metric=vulnerabilities" alt="sonarcloud"></a>
-	<a href="https://sonarcloud.io/summary/overall?id=BBE78_events-player"><img src="https://sonarcloud.io/api/project_badges/measure?project=BBE78_events-player&metric=bugs" alt="sonarcloud"></a>
+	<a href="https://sonarcloud.io/summary/overall?id=BBE78_events-player"><img src="https://sonarcloud.io/api/project_badges/measure?project=BBE78_events-player&metric=alert_status" alt="sonarcloud" title="SonarCloud quality gate"></a>
+	<a href="https://sonarcloud.io/summary/overall?id=BBE78_events-player"><img src="https://sonarcloud.io/api/project_badges/measure?project=BBE78_events-player&metric=vulnerabilities" alt="sonarcloud" title="SonarCloud vulnerabilities"></a>
+	<a href="https://sonarcloud.io/summary/overall?id=BBE78_events-player"><img src="https://sonarcloud.io/api/project_badges/measure?project=BBE78_events-player&metric=bugs" alt="sonarcloud" title="SonarCloud bugs"></a>
+	<a href="https://sonarcloud.io/summary/overall?id=BBE78_events-player"><img src="https://sonarcloud.io/api/project_badges/measure?project=BBE78_events-player&metric=coverage" alt="sonarcloud" title="SonarCloud code coverage"></a>
 	<br/>
 	<a href="https://github.com/BBE78/events-player/issues"><img src="https://img.shields.io/github/issues-raw/BBE78/events-player" alt="issues"></a>
 	<a href="https://www.npmjs.com/package/events-player"><img src="https://img.shields.io/npm/dm/events-player" alt="npmjs"></a>
