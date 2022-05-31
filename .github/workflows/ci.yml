@@ -11,15 +11,13 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [12.x, 14.x, 16.x, 18.x]
-
     steps:
     - uses: actions/checkout@v3
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
@@ -33,7 +31,13 @@ jobs:
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN  }}
         coverage-reports: ./dist/reports/coverage/lcov.info
-
+    
     - name: ESLint Checks
       continue-on-error: true
       run: yarn lint
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
