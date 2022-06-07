@@ -150,20 +150,34 @@ describe('Testing EventsPlayer class', () => {
             });
 
             test('called multiples times', (done) => {
-                let count = 0;
+                let eventsCallbackCount = 0;
+                let startedCount = 0;
                 player = new EventsPlayer(quickEvents, () => {
-                    count++;
+                    eventsCallbackCount++;
+                });
+                player.on('started', () => {
+                    startedCount++;
                 });
                 player.on('done', () => {
-                    if (count === 1) {
-                        done();
-                    } else {
-                        done(`events callback should be called only once, but was called ${count} times`);
-                    }
-                })
+                    expect(eventsCallbackCount).toBe(1);
+                    expect(startedCount).toBe(3);
+                    done();
+                });
                 player.start();
                 player.start();
                 player.start();
+            });
+
+            test('with delay after events', (done) => {
+                let eventsCallbackCount = 0;
+                player = new EventsPlayer(quickEvents, () => {
+                    eventsCallbackCount++;
+                });
+                player.on('done', () => {
+                    expect(eventsCallbackCount).toBe(0);
+                    done();
+                });
+                player.start(500);
             });
 
         });
@@ -182,11 +196,13 @@ describe('Testing EventsPlayer class', () => {
                 player.stop();
             });
 
-            test('without "start()"', (done) => {
+            test('without "start()"', () => {
+                let count = 0;
                 player.on('stopped', () => {
-                    done();
+                    count++;
                 });
                 player.stop();
+                expect(count).toBe(0);
             });
 
             test('called multiples times', () => {
@@ -197,7 +213,7 @@ describe('Testing EventsPlayer class', () => {
                 player.stop();
                 player.stop();
                 player.stop();
-                expect(count).toBe(1);
+                expect(count).toBe(0);
             });
 
         });
@@ -321,8 +337,8 @@ describe('Testing EventsPlayer class', () => {
             test('with "start()" multiple times', (done) => {
                 let count = 0;
                 player.on('done', () => {
-                    if (count !== 1) {
-                        done(`"started" event should be call only once, but was called ${count} times`);
+                    if (count !== 2) {
+                        done(`"started" event should be called 2 times, but was called ${count} times`);
                     } else {
                         done();
                     }
@@ -379,18 +395,22 @@ describe('Testing EventsPlayer class', () => {
         });
 
         describe('"stopped" event', () => {
-            test('nominal', (done) => {
+            test('nominal', () => {
+                let count = 0;
                 player.on('stopped', () => {
-                    done();
+                    count++;
                 });
                 player.start();
                 player.stop();
+                expect(count).toBe(1);
             }, listenersTestTimeout);
-            test('without "start()" being called', (done) => {
+            test('without "start()" being called', () => {
+                let count = 0;
                 player.on('stopped', () => {
-                    done();
+                    count++;
                 });
                 player.stop();
+                expect(count).toBe(0);
             }, listenersTestTimeout);
         });
 

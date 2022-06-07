@@ -68,9 +68,9 @@ export default class EventsPlayer<E> {
     /**
      * Starts the player, schedule all events
      *
-     * @param {number} speed the player speed (default to 1)
+     * @param {number} delay the player delay (default to 0)
      */
-    start(speed = 1): void;
+    start(delay?: number): void;
 
     /**
      * Pause all remaning player events

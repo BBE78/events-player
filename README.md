@@ -34,7 +34,7 @@ It is not a job/task scheduler such as "cron", it is not supposed to be used for
 
 ## Demo
 
-Look at this [example](https://htmlpreview.github.io/?https://github.com/BBE78/events-player/blob/main/example.html) for a concrete usage
+Look at this [example](https://raw.githack.com/BBE78/events-player/main/example.html) for a concrete usage
 
 ## Installation
 
@@ -104,7 +104,7 @@ state:       'started'            'paused'     'resumed'             'done'
 
 | Name                  | Type      | Default   | Description |
 | --------------------- | --------- | --------- | ----------- |
-| `state`               | `"initialized"|"started"|"paused"|"resumed"|"done"`  | `"initialized"`                            | on player's state changed |
+| `state`               | `"initialised","started","paused","resumed","done"`  | `"initialised"`                            | on player's state changed |
 | `speed`               | `number`  | `1`       | on speed changed |
 | `started`             | `-`       | `-`       | on player started |
 | `paused`              | `-`       | `-`       | on player paused |
@@ -116,7 +116,7 @@ state:       'started'            'paused'     'resumed'             'done'
 
 | Name                  | Arg       | Default   | Description |
 | --------------------- | --------- | --------- | ----------- |
-| `start(speed)`        | `number`  | `1`       | start the player |
+| `start(delay)`        | `number`  | `0`       | start the player |
 | `pause()`             | `-`       | `-`       | pause the player |
 | `resume()`            | `-`       | `-`       | resume the player |
 | `stop()`              | `-`       | `-`       | stop the player |

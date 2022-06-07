@@ -197,7 +197,7 @@ export default class EventsPlayer {
     #internalStop(withStateChanged) {
         // Cancel all remaning active timers
         this.#remainingTimers.forEach(timer => timer.cancel());
-        if (withStateChanged) {
+        if (withStateChanged && (this.#state !== 'initialised')) {
             this.#stateChanged('stopped');
         }
     }
@@ -233,25 +233,29 @@ export default class EventsPlayer {
     /**
      * Starts the player, schedule all events
      *
-     * @param {number} speed the player speed (default to 1)
+     * @param {number} delay the player delay position (default to 0)
      */
-    start(speed = 1) {
+    start(delay = 0) {
         // Cancel all previous timers (several play() called)
-        this.#internalStop(false);
+        this.#internalStop(true);
         this.#remainingEvents.clear();
         this.#remainingTimers.clear();
-
-        // Take into account the speed
-        this.#speed = speed;
 
         // Browse all events and start a timer
         this.#events.forEach((event, index) => {
             // Create and start a timer for this event
             const id = `${Date.now()}-${index}`;
-            this.#scheduleEvent(id, event);
-            this.#remainingEvents.set(id, event);
+            if (event.delay >= delay) {
+                this.#scheduleEvent(id, event);
+                this.#remainingEvents.set(id, event);
+            }
         });
         this.#stateChanged('started');
+
+        // If delay is after the last event, then the player is done
+        if (this.#remainingTimers.size === 0) {
+            this.#stateChanged('done');
+        }
     }
 
     /**
